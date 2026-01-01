@@ -256,6 +256,27 @@
                     <button onclick="saveHero()" class="w-full bg-yellow-500 text-white py-2 rounded-xl font-medium hover:bg-yellow-600 transition">Simpan Hero</button>
                 </div>
 
+                <!-- Product Management -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-box text-indigo-500"></i> Kelola Produk
+                    </h3>
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="showAddProductModal()" class="flex-1 bg-green-500 text-white py-2 rounded-xl font-medium hover:bg-green-600 transition">
+                            <i class="fas fa-plus mr-1"></i> Tambah Produk
+                        </button>
+                        <button onclick="showEditProductModal()" class="flex-1 bg-blue-500 text-white py-2 rounded-xl font-medium hover:bg-blue-600 transition">
+                            <i class="fas fa-edit mr-1"></i> Edit Produk
+                        </button>
+                        <button onclick="showDeleteProductModal()" class="flex-1 bg-red-500 text-white py-2 rounded-xl font-medium hover:bg-red-600 transition">
+                            <i class="fas fa-trash mr-1"></i> Hapus Produk
+                        </button>
+                    </div>
+                    <div id="productList" class="max-h-60 overflow-y-auto">
+                        <!-- Product list will be populated here -->
+                    </div>
+                </div>
+
                 <!-- Change PIN -->
                 <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
@@ -302,6 +323,89 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-lg z-50 hidden">
         <span id="toastMessage"></span>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Tambah Produk Baru</h2>
+            <form id="addProductForm" class="space-y-4">
+                <input type="text" id="addProductName" placeholder="Nama Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="number" id="addProductPrice" placeholder="Harga (Rp)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="text" id="addProductUnit" placeholder="Satuan (kg, buah, dll)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <select id="addProductCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Buah">Buah</option>
+                    <option value="Sayuran">Sayuran</option>
+                    <option value="Bumbu">Bumbu</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <input type="url" id="addProductImage" placeholder="URL Gambar Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <textarea id="addProductDesc" placeholder="Deskripsi Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" rows="3" required></textarea>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeAddProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition">Tambah Produk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Produk</h2>
+            <div class="mb-4">
+                <select id="editProductSelect" class="w-full px-4 py-3 border border-gray-200 rounded-xl" onchange="loadProductForEdit()">
+                    <option value="">Pilih Produk untuk Edit</option>
+                </select>
+            </div>
+            <form id="editProductForm" class="space-y-4 hidden">
+                <input type="text" id="editProductName" placeholder="Nama Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="number" id="editProductPrice" placeholder="Harga (Rp)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="text" id="editProductUnit" placeholder="Satuan (kg, buah, dll)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <select id="editProductCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                    <option value="Buah">Buah</option>
+                    <option value="Sayuran">Sayuran</option>
+                    <option value="Bumbu">Bumbu</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <input type="url" id="editProductImage" placeholder="URL Gambar Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <textarea id="editProductDesc" placeholder="Deskripsi Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" rows="3" required></textarea>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeEditProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Product Modal -->
+    <div id="deleteProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Hapus Produk</h2>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-600 mb-4">Pilih produk yang ingin dihapus:</p>
+                <select id="deleteProductSelect" class="w-full px-4 py-3 border border-gray-200 rounded-xl" onchange="showDeleteConfirmation()">
+                    <option value="">Pilih Produk</option>
+                </select>
+            </div>
+            <div id="deleteConfirmation" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                    <p class="text-red-700 font-medium mb-2">Produk yang akan dihapus:</p>
+                    <p id="deleteProductInfo" class="text-red-600"></p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button onclick="confirmDeleteProduct()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">Hapus Produk</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -431,13 +535,17 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             await loadDataFromServer();
+            products = JSON.parse(localStorage.getItem('varshaProducts')) || products;
             renderFeaturedProducts();
             renderProducts();
+            renderProductList();
             updateCartBadge();
             updateDisplayWA();
             updateLogo();
             updateHero();
             document.getElementById('waNumber').value = settings.waNumber;
+            document.getElementById('addProductForm').addEventListener('submit', addProduct);
+            document.getElementById('editProductForm').addEventListener('submit', editProduct);
         });
 
         // Navigation
@@ -824,6 +932,141 @@
 
         async function saveSettings() {
             await syncSettingsWithServer();
+        }
+
+        // Product Management Functions
+        function showAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        function showEditProductModal() {
+            const select = document.getElementById('editProductSelect');
+            select.innerHTML = '<option value="">Pilih Produk untuk Edit</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('editProductModal').classList.remove('hidden');
+        }
+
+        function closeEditProductModal() {
+            document.getElementById('editProductModal').classList.add('hidden');
+            document.getElementById('editProductForm').classList.add('hidden');
+            document.getElementById('editProductForm').reset();
+        }
+
+        function loadProductForEdit() {
+            const id = document.getElementById('editProductSelect').value;
+            if (!id) {
+                document.getElementById('editProductForm').classList.add('hidden');
+                return;
+            }
+            const product = products.find(p => p.id == id);
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductUnit').value = product.unit;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductImage').value = product.image;
+            document.getElementById('editProductDesc').value = product.desc;
+            document.getElementById('editProductForm').classList.remove('hidden');
+        }
+
+        function showDeleteProductModal() {
+            const select = document.getElementById('deleteProductSelect');
+            select.innerHTML = '<option value="">Pilih Produk</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('deleteProductModal').classList.remove('hidden');
+            document.getElementById('deleteConfirmation').classList.add('hidden');
+        }
+
+        function closeDeleteProductModal() {
+            document.getElementById('deleteProductModal').classList.add('hidden');
+        }
+
+        function showDeleteConfirmation() {
+            const id = document.getElementById('deleteProductSelect').value;
+            if (!id) {
+                document.getElementById('deleteConfirmation').classList.add('hidden');
+                return;
+            }
+            const product = products.find(p => p.id == id);
+            document.getElementById('deleteProductInfo').textContent = `${product.name} - Rp ${product.price.toLocaleString('id-ID')}/${product.unit}`;
+            document.getElementById('deleteConfirmation').classList.remove('hidden');
+        }
+
+        function confirmDeleteProduct() {
+            const id = document.getElementById('deleteProductSelect').value;
+            const index = products.findIndex(p => p.id == id);
+            if (index > -1) {
+                products.splice(index, 1);
+                localStorage.setItem('varshaProducts', JSON.stringify(products));
+                renderProducts();
+                renderFeaturedProducts();
+                renderProductList();
+                showToast('Produk berhasil dihapus! ✓');
+                closeDeleteProductModal();
+            }
+        }
+
+        function renderProductList() {
+            const container = document.getElementById('productList');
+            container.innerHTML = products.map(p => `
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
+                    <div class="flex items-center gap-2">
+                        <img src="${p.image}" alt="${p.name}" class="w-8 h-8 object-cover rounded">
+                        <div>
+                            <p class="font-medium text-sm">${p.name}</p>
+                            <p class="text-xs text-gray-500">Rp ${p.price.toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">${p.category}</span>
+                </div>
+            `).join('');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            const name = document.getElementById('addProductName').value;
+            const price = parseInt(document.getElementById('addProductPrice').value);
+            const unit = document.getElementById('addProductUnit').value;
+            const category = document.getElementById('addProductCategory').value;
+            const image = document.getElementById('addProductImage').value;
+            const desc = document.getElementById('addProductDesc').value;
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            const newProduct = { id: newId, name, price, unit, category, image, desc };
+            products.push(newProduct);
+            localStorage.setItem('varshaProducts', JSON.stringify(products));
+            renderProducts();
+            renderFeaturedProducts();
+            renderProductList();
+            showToast('Produk berhasil ditambahkan! ✓');
+            closeAddProductModal();
+        }
+
+        function editProduct(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('editProductSelect').value);
+            const name = document.getElementById('editProductName').value;
+            const price = parseInt(document.getElementById('editProductPrice').value);
+            const unit = document.getElementById('editProductUnit').value;
+            const category = document.getElementById('editProductCategory').value;
+            const image = document.getElementById('editProductImage').value;
+            const desc = document.getElementById('editProductDesc').value;
+            const product = products.find(p => p.id === id);
+            if (product) {
+                product.name = name;
+                product.price = price;
+                product.unit = unit;
+                product.category = category;
+                product.image = image;
+                product.desc = desc;
+                localStorage.setItem('varshaProducts', JSON.stringify(products));
+                renderProducts();
+                renderFeaturedProducts();
+                renderProductList();
+                showToast('Produk berhasil diedit! ✓');
+                closeEditProductModal();
+            }
         }
 
         // Toast Notification
