@@ -326,8 +326,8 @@
         ];
 
         // State
-        let cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
-        let settings = JSON.parse(localStorage.getItem('varshaSettings')) || {
+        let cart = [];
+        let settings = {
             waNumber: '6281234567890',
             pin: '1234',
             logo: {
@@ -343,9 +343,94 @@
         };
         let isAdminLoggedIn = false;
         let currentCategory = 'all';
+        let userId = localStorage.getItem('varshaUserId') || generateUserId();
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Generate unique user ID
+        function generateUserId() {
+            const id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('varshaUserId', id);
+            return id;
+        }
+
+        // API Functions
+        async function apiRequest(endpoint, method = 'GET', data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-user-id': userId
+            };
+
+            const config = {
+                method,
+                headers
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                // Fallback to localStorage if server is unavailable
+                return null;
+            }
+        }
+
+        // Load data from server
+        async function loadDataFromServer() {
+            try {
+                const cartData = await apiRequest('/cart');
+                if (cartData && cartData.cart) {
+                    cart = cartData.cart;
+                } else {
+                    cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
+                }
+
+                const settingsData = await apiRequest('/settings');
+                if (settingsData && settingsData.settings) {
+                    settings = { ...settings, ...settingsData.settings };
+                } else {
+                    settings = JSON.parse(localStorage.getItem('varshaSettings')) || settings;
+                }
+            } catch (error) {
+                console.error('Failed to load data from server:', error);
+                // Fallback to localStorage
+                cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
+                settings = JSON.parse(localStorage.getItem('varshaSettings')) || settings;
+            }
+        }
+
+        // Sync cart with server
+        async function syncCartWithServer() {
+            try {
+                await apiRequest('/cart', 'POST', { cart });
+                localStorage.setItem('varshaCart', JSON.stringify(cart)); // Backup to localStorage
+            } catch (error) {
+                console.error('Failed to sync cart:', error);
+                localStorage.setItem('varshaCart', JSON.stringify(cart)); // Fallback
+            }
+        }
+
+        // Sync settings with server
+        async function syncSettingsWithServer() {
+            try {
+                await apiRequest('/settings', 'POST', { settings });
+                localStorage.setItem('varshaSettings', JSON.stringify(settings)); // Backup to localStorage
+            } catch (error) {
+                console.error('Failed to sync settings:', error);
+                localStorage.setItem('varshaSettings', JSON.stringify(settings)); // Fallback
+            }
+        }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDataFromServer();
             renderFeaturedProducts();
             renderProducts();
             updateCartBadge();
@@ -530,8 +615,8 @@
             renderCart();
         }
 
-        function saveCart() {
-            localStorage.setItem('varshaCart', JSON.stringify(cart));
+        async function saveCart() {
+            await syncCartWithServer();
         }
 
         function updateCartBadge() {
@@ -737,8 +822,8 @@
             if (heroButton) heroButton.innerHTML = settings.hero.buttonText + ' <i class="fas fa-arrow-right ml-2"></i>';
         }
 
-        function saveSettings() {
-            localStorage.setItem('varshaSettings', JSON.stringify(settings));
+        async function saveSettings() {
+            await syncSettingsWithServer();
         }
 
         // Toast Notification
