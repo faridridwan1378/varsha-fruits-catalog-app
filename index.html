@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varsha Fruits and Goods - Katalog Digital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        :root {
+            --primary-green: #22c55e;
+            --primary-orange: #f97316;
+            --dark-green: #15803d;
+            --light-green: #dcfce7;
+            --light-orange: #ffedd5;
+        }
+        .gradient-header { background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #f97316 100%); }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .nav-item.active { color: #22c55e; }
+        .nav-item.active i { transform: scale(1.2); }
+        .page { display: none; }
+        .page.active { display: block; }
+        .btn-whatsapp { background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); }
+        .btn-whatsapp:hover { background: linear-gradient(135deg, #128c7e 0%, #25d366 100%); }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .badge { position: absolute; top: -8px; right: -8px; background: #f97316; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .modal { backdrop-filter: blur(4px); }
+        input:focus, select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+        .category-btn.active { background: #22c55e; color: white; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-50 pb-20">
+    <!-- Header -->
+    <header class="gradient-header text-white p-4 sticky top-0 z-40 shadow-lg">
+        <div class="flex items-center justify-between max-w-lg mx-auto">
+            <div class="flex items-center gap-3">
+                <button onclick="navigateToPage('home')" class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer">
+                    <img id="headerLogo" src="" alt="Logo" class="w-16 h-16 object-cover rounded-full">
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold">Varsha</h1>
+                    <p class="text-xs opacity-90">Fruits & Goods</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="showSearch()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Cari">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button onclick="navigateToPage('home')" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Home">
+                    <i class="fas fa-home"></i>
+                </button>
+                <button onclick="navigateToPage('profil')" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Profil">
+                    <i class="fas fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar (Hidden by default) -->
+    <div id="searchBar" class="hidden bg-white p-4 shadow-md sticky top-[76px] z-30">
+        <div class="max-w-lg mx-auto flex gap-2">
+            <input type="text" id="searchInput" placeholder="Cari produk..." class="flex-1 px-4 py-2 border border-gray-200 rounded-xl" oninput="searchProducts()">
+            <button onclick="hideSearch()" class="px-4 py-2 bg-gray-100 rounded-xl text-gray-600 hover:bg-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-lg mx-auto px-4 py-4">
+        <!-- Home Page -->
+        <div id="homePage" class="page active fade-in">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 mb-6 text-white relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-20 text-9xl">🍇</div>
+                <h2 class="text-2xl font-bold mb-2 relative z-10">Selamat Datang! 👋</h2>
+                <p class="text-sm opacity-90 mb-4 relative z-10">Buah segar & berkualitas langsung dari kebun ke rumah Anda</p>
+                <button onclick="navigateTo('katalog')" class="bg-white text-green-600 px-6 py-2 rounded-full font-semibold text-sm hover:bg-gray-100 transition relative z-10">
+                    Lihat Katalog <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Categories -->
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Kategori</h3>
+            <div class="grid grid-cols-4 gap-3 mb-6">
+                <div onclick="filterByCategory('Buah')" class="bg-green-50 p-4 rounded-xl text-center cursor-pointer hover:bg-green-100 transition">
+                    <span class="text-3xl">🍎</span>
+                    <p class="text-xs mt-2 font-medium text-gray-700">Buah</p>
+                </div>
+                <div onclick="filterByCategory('Sayuran')" class="bg-orange-50 p-4 rounded-xl text-center cursor-pointer hover:bg-orange-100 transition">
+                    <span class="text-3xl">🥬</span>
+                    <p class="text-xs mt-2 font-medium text-gray-700">Sayuran</p>
+                </div>
+                <div onclick="filterByCategory('Bumbu')" class="bg-yellow-50 p-4 rounded-xl text-center cursor-pointer hover:bg-yellow-100 transition">
+                    <span class="text-3xl">🌶️</span>
+                    <p class="text-xs mt-2 font-medium text-gray-700">Bumbu</p>
+                </div>
+                <div onclick="filterByCategory('Lainnya')" class="bg-purple-50 p-4 rounded-xl text-center cursor-pointer hover:bg-purple-100 transition">
+                    <span class="text-3xl">📦</span>
+                    <p class="text-xs mt-2 font-medium text-gray-700">Lainnya</p>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-800">Produk Populer</h3>
+                <button onclick="navigateTo('katalog')" class="text-green-600 text-sm font-medium">Lihat Semua</button>
+            </div>
+            <div id="featuredProducts" class="grid grid-cols-2 gap-3"></div>
+
+            <!-- Promo Banner -->
+            <div class="bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl p-5 mt-6 text-white relative overflow-hidden">
+                <div class="absolute right-2 bottom-2 opacity-30 text-7xl">🍊</div>
+                <h3 class="font-bold text-lg mb-1">Buah Segar Setiap Hari!</h3>
+                <p class="text-sm opacity-90">Kualitas terbaik untuk keluarga Anda</p>
+            </div>
+        </div>
+
+        <!-- Katalog Page -->
+        <div id="katalogPage" class="page fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Katalog Produk</h2>
+            
+            <!-- Category Filter -->
+            <div class="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
+                <button onclick="filterByCategory('all')" class="category-btn active px-4 py-2 bg-gray-100 rounded-full text-sm font-medium whitespace-nowrap transition">Semua</button>
+                <button onclick="filterByCategory('Buah')" class="category-btn px-4 py-2 bg-gray-100 rounded-full text-sm font-medium whitespace-nowrap transition">🍎 Buah</button>
+                <button onclick="filterByCategory('Sayuran')" class="category-btn px-4 py-2 bg-gray-100 rounded-full text-sm font-medium whitespace-nowrap transition">🥬 Sayuran</button>
+                <button onclick="filterByCategory('Bumbu')" class="category-btn px-4 py-2 bg-gray-100 rounded-full text-sm font-medium whitespace-nowrap transition">🌶️ Bumbu</button>
+                <button onclick="filterByCategory('Lainnya')" class="category-btn px-4 py-2 bg-gray-100 rounded-full text-sm font-medium whitespace-nowrap transition">📦 Lainnya</button>
+            </div>
+
+            <div id="productGrid" class="grid grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Keranjang Page -->
+        <div id="keranjangPage" class="page fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Keranjang Belanja</h2>
+            <div id="cartItems"></div>
+            <div id="cartEmpty" class="text-center py-12">
+                <span class="text-6xl">🛒</span>
+                <p class="text-gray-500 mt-4">Keranjang masih kosong</p>
+                <button onclick="navigateTo('katalog')" class="mt-4 bg-green-500 text-white px-6 py-2 rounded-full font-medium hover:bg-green-600 transition">Mulai Belanja</button>
+            </div>
+            <div id="cartSummary" class="hidden bg-white rounded-2xl shadow-lg p-4 mt-4">
+                <div class="flex justify-between mb-4">
+                    <span class="font-bold text-lg">Total</span>
+                    <span id="totalPrice" class="font-bold text-lg text-green-600">Rp 0</span>
+                </div>
+                <button onclick="checkoutWhatsApp()" class="btn-whatsapp w-full text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition">
+                    <i class="fab fa-whatsapp text-xl"></i> Pesan via WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <!-- Profil Page -->
+        <div id="profilPage" class="page fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Profil Toko</h2>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-4 text-center">
+                <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <img id="profilLogo" src="" alt="Logo" class="w-16 h-16 object-cover rounded-full">
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">Varsha Fruits & Goods</h3>
+                <p class="text-gray-500 mt-1">Buah Segar & Berkualitas</p>
+                <div class="flex justify-center gap-2 mt-3">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">✓ Terpercaya</span>
+                    <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-medium">⭐ Premium</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-4 border-b flex items-center gap-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fab fa-whatsapp text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">WhatsApp</p>
+                        <p id="displayWA" class="font-semibold text-gray-800">-</p>
+                    </div>
+                </div>
+                <div class="p-4 border-b flex items-center gap-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-orange-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Lokasi</p>
+                        <p class="font-semibold text-gray-800">Jakarta, Indonesia</p>
+                    </div>
+                </div>
+                <div class="p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Jam Operasional</p>
+                        <p class="font-semibold text-gray-800">08:00 - 21:00 WIB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="adminPage" class="page fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Panel Admin</h2>
+            
+            <!-- Login Section -->
+            <div id="adminLogin" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-lock text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg">Masuk Admin</h3>
+                    <p class="text-gray-500 text-sm">Masukkan PIN untuk mengakses</p>
+                </div>
+                <input type="password" id="adminPin" placeholder="Masukkan PIN" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-center text-2xl tracking-widest mb-4" maxlength="6">
+                <button onclick="loginAdmin()" class="w-full bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition">Masuk</button>
+               
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="hidden">
+                <!-- WA Number Setting -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-green-500"></i> Nomor WhatsApp Toko
+                    </h3>
+                    <input type="text" id="waNumber" placeholder="628xxxxxxxxxx" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <button onclick="saveWANumber()" class="w-full bg-green-500 text-white py-2 rounded-xl font-medium hover:bg-green-600 transition">Simpan Nomor WA</button>
+                </div>
+
+                <!-- Logo Management -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-image text-blue-500"></i> Kelola Logo
+                    </h3>
+                    <input type="text" id="logoImage" placeholder="URL Gambar Logo" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <input type="text" id="logoTitle" placeholder="Judul Logo" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <input type="text" id="logoSubtitle" placeholder="Subjudul Logo" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <button onclick="saveLogo()" class="w-full bg-blue-500 text-white py-2 rounded-xl font-medium hover:bg-blue-600 transition">Simpan Logo</button>
+                </div>
+
+                <!-- Hero Management -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-star text-yellow-500"></i> Kelola Hero Section
+                    </h3>
+                    <input type="text" id="heroTitle" placeholder="Judul Hero" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <textarea id="heroDescription" placeholder="Deskripsi Hero" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3" rows="3"></textarea>
+                    <input type="text" id="heroButtonText" placeholder="Teks Tombol" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3">
+                    <button onclick="saveHero()" class="w-full bg-yellow-500 text-white py-2 rounded-xl font-medium hover:bg-yellow-600 transition">Simpan Hero</button>
+                </div>
+
+                <!-- Change PIN -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-key text-purple-500"></i> Ubah PIN Admin
+                    </h3>
+                    <input type="password" id="newPin" placeholder="PIN Baru" class="w-full px-4 py-3 border border-gray-200 rounded-xl mb-3" maxlength="6">
+                    <button onclick="changePin()" class="w-full bg-purple-500 text-white py-2 rounded-xl font-medium hover:bg-purple-600 transition">Ubah PIN</button>
+                </div>
+
+                <button onclick="logoutAdmin()" class="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        <div class="max-w-lg mx-auto flex justify-around py-2">
+            <button onclick="navigateTo('katalog')" class="nav-item flex flex-col items-center py-2 px-6 text-gray-400 transition">
+                <i class="fas fa-store text-xl mb-1"></i>
+                <span class="text-xs">Katalog</span>
+            </button>
+            <button onclick="navigateTo('keranjang')" class="nav-item flex flex-col items-center py-2 px-6 text-gray-400 transition relative">
+                <i class="fas fa-shopping-cart text-xl mb-1"></i>
+                <span id="cartBadge" class="badge hidden">0</span>
+                <span class="text-xs">Keranjang</span>
+            </button>
+            <button onclick="navigateTo('admin')" class="nav-item flex flex-col items-center py-2 px-6 text-gray-400 transition">
+                <i class="fas fa-cog text-xl mb-1"></i>
+                <span class="text-xs">Admin</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-lg z-50 hidden">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Product Data
+        const products = [
+            { id: 1, name: "Apel Fuji Premium", price: 45000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", desc: "Apel Fuji segar import, manis dan renyah" },
+            { id: 2, name: "Jeruk Mandarin", price: 38000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=400", desc: "Jeruk mandarin manis tanpa biji" },
+            { id: 3, name: "Mangga Harum Manis", price: 35000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400", desc: "Mangga harum manis lokal pilihan" },
+            { id: 4, name: "Anggur Red Globe", price: 75000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400", desc: "Anggur merah import segar" },
+            { id: 5, name: "Pisang Cavendish", price: 28000, unit: "sisir", category: "Buah", image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400", desc: "Pisang cavendish premium" },
+            { id: 6, name: "Semangka Merah", price: 25000, unit: "buah", category: "Buah", image: "https://images.unsplash.com/photo-1589984662646-e7b2e4f5989d?w=400", desc: "Semangka merah manis tanpa biji" },
+            { id: 7, name: "Bayam Organik", price: 8000, unit: "ikat", category: "Sayuran", image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400", desc: "Bayam organik segar dari kebun" },
+            { id: 8, name: "Brokoli Segar", price: 18000, unit: "kg", category: "Sayuran", image: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=400", desc: "Brokoli hijau segar berkualitas" },
+            { id: 9, name: "Wortel Import", price: 15000, unit: "kg", category: "Sayuran", image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400", desc: "Wortel import manis dan renyah" },
+            { id: 10, name: "Tomat Cherry", price: 22000, unit: "pack", category: "Sayuran", image: "https://images.unsplash.com/photo-1546470427-227c7b0f5654?w=400", desc: "Tomat cherry segar untuk salad" },
+            { id: 11, name: "Cabai Merah Keriting", price: 45000, unit: "kg", category: "Bumbu", image: "https://images.unsplash.com/photo-1583119022894-919a68a3d0e3?w=400", desc: "Cabai merah keriting pedas" },
+            { id: 12, name: "Bawang Merah", price: 35000, unit: "kg", category: "Bumbu", image: "https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?w=400", desc: "Bawang merah lokal pilihan" },
+            { id: 13, name: "Bawang Putih", price: 40000, unit: "kg", category: "Bumbu", image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2571?w=400", desc: "Bawang putih import berkualitas" },
+            { id: 14, name: "Jahe Emprit", price: 30000, unit: "kg", category: "Bumbu", image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400", desc: "Jahe emprit segar untuk masakan" },
+            { id: 15, name: "Madu Murni", price: 85000, unit: "botol", category: "Lainnya", image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400", desc: "Madu murni asli hutan 500ml" },
+            { id: 16, name: "Telur Ayam Kampung", price: 48000, unit: "tray", category: "Lainnya", image: "https://images.unsplash.com/photo-1569288063643-5d29ad64df09?w=400", desc: "Telur ayam kampung organik (30 butir)" }
+        ];
+
+        // State
+        let cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
+        let settings = JSON.parse(localStorage.getItem('varshaSettings')) || {
+            waNumber: '6281234567890',
+            pin: '1234',
+            logo: {
+                image: '',
+                title: 'Varsha',
+                subtitle: 'Fruits & Goods'
+            },
+            hero: {
+                title: 'Selamat Datang! 👋',
+                description: 'Buah segar & berkualitas langsung dari kebun ke rumah Anda',
+                buttonText: 'Lihat Katalog'
+            }
+        };
+        let isAdminLoggedIn = false;
+        let currentCategory = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFeaturedProducts();
+            renderProducts();
+            updateCartBadge();
+            updateDisplayWA();
+            updateLogo();
+            updateHero();
+            document.getElementById('waNumber').value = settings.waNumber;
+        });
+
+        // Navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+            if (event && event.currentTarget && event.currentTarget.classList.contains('nav-item')) {
+                event.currentTarget.classList.add('active');
+            }
+            
+            if (page === 'keranjang') {
+                renderCart();
+            }
+            if (page === 'katalog') {
+                renderProducts();
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Navigation from Header (for Home & Profile)
+        function navigateToPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+            
+            if (page === 'keranjang') {
+                renderCart();
+            }
+            if (page === 'katalog') {
+                renderProducts();
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Search
+        function showSearch() {
+            document.getElementById('searchBar').classList.remove('hidden');
+            document.getElementById('searchInput').focus();
+        }
+
+        function hideSearch() {
+            document.getElementById('searchBar').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+            renderProducts();
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+            navigateTo('katalog');
+            document.querySelectorAll('.nav-item')[0].classList.add('active');
+        }
+
+        // Render Featured Products
+        function renderFeaturedProducts() {
+            const featured = products.slice(0, 4);
+            const container = document.getElementById('featuredProducts');
+            container.innerHTML = featured.map(p => createProductCard(p)).join('');
+        }
+
+        // Render Products
+        function renderProducts(productList = null) {
+            const container = document.getElementById('productGrid');
+            let filtered = productList || products;
+            
+            if (!productList && currentCategory !== 'all') {
+                filtered = products.filter(p => p.category === currentCategory);
+            }
+            
+            container.innerHTML = filtered.map(p => createProductCard(p)).join('');
+        }
+
+        // Create Product Card
+        function createProductCard(product) {
+            return `
+                <div class="product-card bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer" onclick="showProductDetail(${product.id})">
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-32 object-cover">
+                        <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">${product.category}</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm text-gray-800 truncate">${product.name}</h3>
+                        <p class="text-xs text-gray-500">per ${product.unit}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-green-600">Rp ${product.price.toLocaleString('id-ID')}</span>
+                            <button onclick="event.stopPropagation(); addToCart(${product.id})" class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Filter by Category
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            renderProducts();
+            navigateTo('katalog');
+        }
+
+        // Show Product Detail
+        function showProductDetail(id) {
+            const product = products.find(p => p.id === id);
+            const modal = document.getElementById('productModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" class="w-full h-56 object-cover rounded-2xl mb-4">
+                <span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">${product.category}</span>
+                <h2 class="text-xl font-bold text-gray-800 mt-2">${product.name}</h2>
+                <p class="text-gray-500 text-sm mt-1">${product.desc}</p>
+                <div class="flex items-baseline gap-2 mt-3">
+                    <span class="text-2xl font-bold text-green-600">Rp ${product.price.toLocaleString('id-ID')}</span>
+                    <span class="text-gray-500 text-sm">/ ${product.unit}</span>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="addToCart(${product.id}); closeModal()" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition">
+                        <i class="fas fa-cart-plus mr-2"></i> Tambah ke Keranjang
+                    </button>
+                    <button onclick="orderSingleProduct(${product.id})" class="flex-1 btn-whatsapp text-white py-3 rounded-xl font-semibold transition">
+                        <i class="fab fa-whatsapp mr-2"></i> Pesan Langsung
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.onclick = (e) => {
+                if (e.target === modal) closeModal();
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // Cart Functions
+        function addToCart(id) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, qty: 1 });
+            }
+            saveCart();
+            updateCartBadge();
+            showToast('Ditambahkan ke keranjang! 🛒');
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateCartBadge();
+            renderCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    removeFromCart(id);
+                    return;
+                }
+            }
+            saveCart();
+            renderCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('varshaCart', JSON.stringify(cart));
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const total = cart.reduce((sum, item) => sum + item.qty, 0);
+            badge.textContent = total;
+            badge.classList.toggle('hidden', total === 0);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const emptyState = document.getElementById('cartEmpty');
+            const summary = document.getElementById('cartSummary');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                summary.classList.add('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            summary.classList.remove('hidden');
+            
+            container.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                return `
+                    <div class="bg-white rounded-xl shadow-md p-3 mb-3 flex gap-3">
+                        <img src="${product.image}" alt="${product.name}" class="w-20 h-20 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 text-sm">${product.name}</h4>
+                            <p class="text-green-600 font-bold text-sm">Rp ${product.price.toLocaleString('id-ID')}/${product.unit}</p>
+                            <div class="flex items-center justify-between mt-2">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="updateQty(${item.id}, -1)" class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    <span class="font-semibold w-6 text-center">${item.qty}</span>
+                                    <button onclick="updateQty(${item.id}, 1)" class="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                                <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-600">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateCartTotal();
+        }
+
+        function updateCartTotal() {
+            const total = cart.reduce((sum, item) => {
+                const product = products.find(p => p.id === item.id);
+                return sum + (product.price * item.qty);
+            }, 0);
+            
+            document.getElementById('totalPrice').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        // WhatsApp Order
+        function orderSingleProduct(id) {
+            const product = products.find(p => p.id === id);
+            const message = `Halo Varsha Fruits! 🍊\n\nSaya ingin memesan:\n\n📦 *${product.name}*\n💰 Harga: Rp ${product.price.toLocaleString('id-ID')}/${product.unit}\n\nMohon info ketersediaan dan cara pembayaran. Terima kasih! 🙏`;
+            
+            const waUrl = `https://wa.me/${settings.waNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+            closeModal();
+        }
+
+        function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                showToast('Keranjang masih kosong!');
+                return;
+            }
+            
+            let message = `Halo Varsha Fruits! 🍊\n\nSaya ingin memesan:\n\n`;
+            
+            let total = 0;
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.qty;
+                total += itemTotal;
+                message += `📦 *${product.name}*\n   ${item.qty} ${product.unit} x Rp ${product.price.toLocaleString('id-ID')} = Rp ${itemTotal.toLocaleString('id-ID')}\n\n`;
+            });
+            
+            message += `----------------------------\n`;
+            message += `💰 *TOTAL: Rp ${total.toLocaleString('id-ID')}*\n\n`;
+            message += `Mohon konfirmasi ketersediaan dan info pembayaran. Terima kasih! 🙏`;
+            
+            const waUrl = `https://wa.me/${settings.waNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Admin Functions
+        function loginAdmin() {
+            const pin = document.getElementById('adminPin').value;
+            if (pin === settings.pin) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('adminPin').value = '';
+                showToast('Login berhasil! ✓');
+            } else {
+                showToast('PIN salah! ✗');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminLogin').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            showToast('Berhasil keluar');
+        }
+
+        function saveWANumber() {
+            const waNumber = document.getElementById('waNumber').value.replace(/\D/g, '');
+            if (waNumber.length < 10) {
+                showToast('Nomor WA tidak valid!');
+                return;
+            }
+            settings.waNumber = waNumber;
+            saveSettings();
+            updateDisplayWA();
+            showToast('Nomor WA berhasil disimpan! ✓');
+        }
+
+        function updateDisplayWA() {
+            const wa = settings.waNumber;
+            document.getElementById('displayWA').textContent = '+' + wa.replace(/(\d{2})(\d{3})(\d{4})(\d+)/, '$1 $2-$3-$4');
+        }
+
+        function changePin() {
+            const newPin = document.getElementById('newPin').value;
+            if (newPin.length < 4) {
+                showToast('PIN minimal 4 digit!');
+                return;
+            }
+            settings.pin = newPin;
+            saveSettings();
+            document.getElementById('newPin').value = '';
+            showToast('PIN berhasil diubah! ✓');
+        }
+
+        function saveLogo() {
+            const image = document.getElementById('logoImage').value.trim();
+            const title = document.getElementById('logoTitle').value.trim();
+            const subtitle = document.getElementById('logoSubtitle').value.trim();
+
+            if (!image || !title || !subtitle) {
+                showToast('Semua field logo harus diisi!');
+                return;
+            }
+
+            settings.logo.image = image;
+            settings.logo.title = title;
+            settings.logo.subtitle = subtitle;
+            saveSettings();
+            updateLogo();
+            showToast('Logo berhasil disimpan! ✓');
+        }
+
+        function saveHero() {
+            const title = document.getElementById('heroTitle').value.trim();
+            const description = document.getElementById('heroDescription').value.trim();
+            const buttonText = document.getElementById('heroButtonText').value.trim();
+
+            if (!title || !description || !buttonText) {
+                showToast('Semua field hero harus diisi!');
+                return;
+            }
+
+            settings.hero.title = title;
+            settings.hero.description = description;
+            settings.hero.buttonText = buttonText;
+            saveSettings();
+            updateHero();
+            showToast('Hero berhasil disimpan! ✓');
+        }
+
+        function updateLogo() {
+            const headerLogo = document.getElementById('headerLogo');
+            const profilLogo = document.getElementById('profilLogo');
+            const logoTitle = document.querySelector('.gradient-header .flex.items-center.gap-3 + div h1');
+            const logoSubtitle = document.querySelector('.gradient-header .flex.items-center.gap-3 + div p');
+
+            if (headerLogo) headerLogo.src = settings.logo.image;
+            if (profilLogo) profilLogo.src = settings.logo.image;
+            if (logoTitle) logoTitle.textContent = settings.logo.title;
+            if (logoSubtitle) logoSubtitle.textContent = settings.logo.subtitle;
+        }
+
+        function updateHero() {
+            const heroTitle = document.querySelector('#homePage .bg-gradient-to-r h2');
+            const heroDesc = document.querySelector('#homePage .bg-gradient-to-r p');
+            const heroButton = document.querySelector('#homePage .bg-gradient-to-r button');
+
+            if (heroTitle) heroTitle.textContent = settings.hero.title;
+            if (heroDesc) heroDesc.textContent = settings.hero.description;
+            if (heroButton) heroButton.innerHTML = settings.hero.buttonText + ' <i class="fas fa-arrow-right ml-2"></i>';
+        }
+
+        function saveSettings() {
+            localStorage.setItem('varshaSettings', JSON.stringify(settings));
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
+    </script>
+</body>
+</html>
