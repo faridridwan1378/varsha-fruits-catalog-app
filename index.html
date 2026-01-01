@@ -58,6 +58,9 @@
                 <button onclick="navigateToPage('profil')" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Profil">
                     <i class="fas fa-user"></i>
                 </button>
+                <button onclick="navigateTo('admin')" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition" title="Kelola Produk">
+                    <i class="fas fa-cog"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -256,6 +259,27 @@
                     <button onclick="saveHero()" class="w-full bg-yellow-500 text-white py-2 rounded-xl font-medium hover:bg-yellow-600 transition">Simpan Hero</button>
                 </div>
 
+                <!-- Product Management -->
+                <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-box text-indigo-500"></i> Kelola Produk
+                    </h3>
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="showAddProductModal()" class="flex-1 bg-green-500 text-white py-2 rounded-xl font-medium hover:bg-green-600 transition">
+                            <i class="fas fa-plus mr-1"></i> Tambah Produk
+                        </button>
+                        <button onclick="showEditProductModal()" class="flex-1 bg-blue-500 text-white py-2 rounded-xl font-medium hover:bg-blue-600 transition">
+                            <i class="fas fa-edit mr-1"></i> Edit Produk
+                        </button>
+                        <button onclick="showDeleteProductModal()" class="flex-1 bg-red-500 text-white py-2 rounded-xl font-medium hover:bg-red-600 transition">
+                            <i class="fas fa-trash mr-1"></i> Hapus Produk
+                        </button>
+                    </div>
+                    <div id="productList" class="max-h-60 overflow-y-auto">
+                        <!-- Product list will be populated here -->
+                    </div>
+                </div>
+
                 <!-- Change PIN -->
                 <div class="bg-white rounded-2xl shadow-lg p-4 mb-4">
                     <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
@@ -304,9 +328,92 @@
         <span id="toastMessage"></span>
     </div>
 
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Tambah Produk Baru</h2>
+            <form id="addProductForm" class="space-y-4">
+                <input type="text" id="addProductName" placeholder="Nama Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="number" id="addProductPrice" placeholder="Harga (Rp)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="text" id="addProductUnit" placeholder="Satuan (kg, buah, dll)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <select id="addProductCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Buah">Buah</option>
+                    <option value="Sayuran">Sayuran</option>
+                    <option value="Bumbu">Bumbu</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <input type="url" id="addProductImage" placeholder="URL Gambar Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <textarea id="addProductDesc" placeholder="Deskripsi Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" rows="3" required></textarea>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeAddProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition">Tambah Produk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6 max-h-[85vh] overflow-y-auto">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Produk</h2>
+            <div class="mb-4">
+                <select id="editProductSelect" class="w-full px-4 py-3 border border-gray-200 rounded-xl" onchange="loadProductForEdit()">
+                    <option value="">Pilih Produk untuk Edit</option>
+                </select>
+            </div>
+            <form id="editProductForm" class="space-y-4 hidden">
+                <input type="text" id="editProductName" placeholder="Nama Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="number" id="editProductPrice" placeholder="Harga (Rp)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <input type="text" id="editProductUnit" placeholder="Satuan (kg, buah, dll)" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <select id="editProductCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                    <option value="Buah">Buah</option>
+                    <option value="Sayuran">Sayuran</option>
+                    <option value="Bumbu">Bumbu</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+                <input type="url" id="editProductImage" placeholder="URL Gambar Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" required>
+                <textarea id="editProductDesc" placeholder="Deskripsi Produk" class="w-full px-4 py-3 border border-gray-200 rounded-xl" rows="3" required></textarea>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeEditProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Product Modal -->
+    <div id="deleteProductModal" class="modal fixed inset-0 bg-black/50 z-50 hidden flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl p-6">
+            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Hapus Produk</h2>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-600 mb-4">Pilih produk yang ingin dihapus:</p>
+                <select id="deleteProductSelect" class="w-full px-4 py-3 border border-gray-200 rounded-xl" onchange="showDeleteConfirmation()">
+                    <option value="">Pilih Produk</option>
+                </select>
+            </div>
+            <div id="deleteConfirmation" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                    <p class="text-red-700 font-medium mb-2">Produk yang akan dihapus:</p>
+                    <p id="deleteProductInfo" class="text-red-600"></p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteProductModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition">Batal</button>
+                    <button onclick="confirmDeleteProduct()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">Hapus Produk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Product Data
-        const products = [
+        let products = [
             { id: 1, name: "Apel Fuji Premium", price: 45000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", desc: "Apel Fuji segar import, manis dan renyah" },
             { id: 2, name: "Jeruk Mandarin", price: 38000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1547514701-42782101795e?w=400", desc: "Jeruk mandarin manis tanpa biji" },
             { id: 3, name: "Mangga Harum Manis", price: 35000, unit: "kg", category: "Buah", image: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400", desc: "Mangga harum manis lokal pilihan" },
@@ -326,8 +433,8 @@
         ];
 
         // State
-        let cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
-        let settings = JSON.parse(localStorage.getItem('varshaSettings')) || {
+        let cart = [];
+        let settings = {
             waNumber: '6281234567890',
             pin: '1234',
             logo: {
@@ -343,16 +450,113 @@
         };
         let isAdminLoggedIn = false;
         let currentCategory = 'all';
+        let userId = localStorage.getItem('varshaUserId') || generateUserId();
+        const API_BASE = 'https://your-api-domain.com/api'; // Replace with your production API URL
+
+        // Generate unique user ID
+        function generateUserId() {
+            const id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('varshaUserId', id);
+            return id;
+        }
+
+        // API Functions
+        async function apiRequest(endpoint, method = 'GET', data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-user-id': userId
+            };
+
+            const config = {
+                method,
+                headers
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                // Fallback to localStorage if server is unavailable
+                return null;
+            }
+        }
+
+        // Load data from server
+        async function loadDataFromServer() {
+            try {
+                const cartData = await apiRequest('/cart');
+                if (cartData && cartData.cart) {
+                    cart = cartData.cart;
+                } else {
+                    cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
+                }
+
+                const settingsData = await apiRequest('/settings');
+                if (settingsData && settingsData.settings) {
+                    settings = { ...settings, ...settingsData.settings };
+                } else {
+                    settings = JSON.parse(localStorage.getItem('varshaSettings')) || settings;
+                }
+
+                const productsData = await apiRequest('/products');
+                if (productsData && productsData.products) {
+                    products = productsData.products;
+                } else {
+                    products = JSON.parse(localStorage.getItem('varshaProducts')) || products;
+                }
+            } catch (error) {
+                console.error('Failed to load data from server:', error);
+                // Fallback to localStorage
+                cart = JSON.parse(localStorage.getItem('varshaCart')) || [];
+                settings = JSON.parse(localStorage.getItem('varshaSettings')) || settings;
+                products = JSON.parse(localStorage.getItem('varshaProducts')) || products;
+            }
+        }
+
+        // Sync cart with server
+        async function syncCartWithServer() {
+            try {
+                await apiRequest('/cart', 'POST', { cart });
+                localStorage.setItem('varshaCart', JSON.stringify(cart)); // Backup to localStorage
+            } catch (error) {
+                console.error('Failed to sync cart:', error);
+                localStorage.setItem('varshaCart', JSON.stringify(cart)); // Fallback
+            }
+        }
+
+        // Sync settings with server
+        async function syncSettingsWithServer() {
+            try {
+                await apiRequest('/settings', 'POST', { settings });
+                localStorage.setItem('varshaSettings', JSON.stringify(settings)); // Backup to localStorage
+            } catch (error) {
+                console.error('Failed to sync settings:', error);
+                localStorage.setItem('varshaSettings', JSON.stringify(settings)); // Fallback
+            }
+        }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDataFromServer();
+            products = JSON.parse(localStorage.getItem('varshaProducts')) || products;
             renderFeaturedProducts();
             renderProducts();
+            renderProductList();
             updateCartBadge();
             updateDisplayWA();
             updateLogo();
             updateHero();
             document.getElementById('waNumber').value = settings.waNumber;
+            document.getElementById('addProductForm').addEventListener('submit', addProduct);
+            document.getElementById('editProductForm').addEventListener('submit', editProduct);
         });
 
         // Navigation
@@ -530,8 +734,8 @@
             renderCart();
         }
 
-        function saveCart() {
-            localStorage.setItem('varshaCart', JSON.stringify(cart));
+        async function saveCart() {
+            await syncCartWithServer();
         }
 
         function updateCartBadge() {
@@ -718,8 +922,8 @@
         function updateLogo() {
             const headerLogo = document.getElementById('headerLogo');
             const profilLogo = document.getElementById('profilLogo');
-            const logoTitle = document.querySelector('.gradient-header .flex.items-center.gap-3 + div h1');
-            const logoSubtitle = document.querySelector('.gradient-header .flex.items-center.gap-3 + div p');
+            const logoTitle = document.querySelector('.gradient-header h1');
+            const logoSubtitle = document.querySelector('.gradient-header p');
 
             if (headerLogo) headerLogo.src = settings.logo.image;
             if (profilLogo) profilLogo.src = settings.logo.image;
@@ -737,8 +941,145 @@
             if (heroButton) heroButton.innerHTML = settings.hero.buttonText + ' <i class="fas fa-arrow-right ml-2"></i>';
         }
 
-        function saveSettings() {
-            localStorage.setItem('varshaSettings', JSON.stringify(settings));
+        async function saveSettings() {
+            await syncSettingsWithServer();
+        }
+
+        // Product Management Functions
+        function showAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        function showEditProductModal() {
+            const select = document.getElementById('editProductSelect');
+            select.innerHTML = '<option value="">Pilih Produk untuk Edit</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('editProductModal').classList.remove('hidden');
+        }
+
+        function closeEditProductModal() {
+            document.getElementById('editProductModal').classList.add('hidden');
+            document.getElementById('editProductForm').classList.add('hidden');
+            document.getElementById('editProductForm').reset();
+        }
+
+        function loadProductForEdit() {
+            const id = document.getElementById('editProductSelect').value;
+            if (!id) {
+                document.getElementById('editProductForm').classList.add('hidden');
+                return;
+            }
+            const product = products.find(p => p.id == id);
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductUnit').value = product.unit;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductImage').value = product.image;
+            document.getElementById('editProductDesc').value = product.desc;
+            document.getElementById('editProductForm').classList.remove('hidden');
+        }
+
+        function showDeleteProductModal() {
+            const select = document.getElementById('deleteProductSelect');
+            select.innerHTML = '<option value="">Pilih Produk</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            document.getElementById('deleteProductModal').classList.remove('hidden');
+            document.getElementById('deleteConfirmation').classList.add('hidden');
+        }
+
+        function closeDeleteProductModal() {
+            document.getElementById('deleteProductModal').classList.add('hidden');
+        }
+
+        function showDeleteConfirmation() {
+            const id = document.getElementById('deleteProductSelect').value;
+            if (!id) {
+                document.getElementById('deleteConfirmation').classList.add('hidden');
+                return;
+            }
+            const product = products.find(p => p.id == id);
+            document.getElementById('deleteProductInfo').textContent = `${product.name} - Rp ${product.price.toLocaleString('id-ID')}/${product.unit}`;
+            document.getElementById('deleteConfirmation').classList.remove('hidden');
+        }
+
+        function confirmDeleteProduct() {
+            const id = document.getElementById('deleteProductSelect').value;
+            const index = products.findIndex(p => p.id == id);
+            if (index > -1) {
+                products.splice(index, 1);
+                localStorage.setItem('varshaProducts', JSON.stringify(products));
+                renderProducts();
+                renderFeaturedProducts();
+                renderProductList();
+                showToast('Produk berhasil dihapus! ✓');
+                closeDeleteProductModal();
+            }
+        }
+
+        function renderProductList() {
+            const container = document.getElementById('productList');
+            container.innerHTML = products.map(p => `
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
+                    <div class="flex items-center gap-2">
+                        <img src="${p.image}" alt="${p.name}" class="w-8 h-8 object-cover rounded">
+                        <div>
+                            <p class="font-medium text-sm">${p.name}</p>
+                            <p class="text-xs text-gray-500">Rp ${p.price.toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">${p.category}</span>
+                </div>
+            `).join('');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            const name = document.getElementById('addProductName').value;
+            const price = parseInt(document.getElementById('addProductPrice').value);
+            const unit = document.getElementById('addProductUnit').value;
+            const category = document.getElementById('addProductCategory').value;
+            const image = document.getElementById('addProductImage').value;
+            const desc = document.getElementById('addProductDesc').value;
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            const newProduct = { id: newId, name, price, unit, category, image, desc };
+            products.push(newProduct);
+            localStorage.setItem('varshaProducts', JSON.stringify(products));
+            currentCategory = 'all';
+            renderProducts();
+            renderFeaturedProducts();
+            renderProductList();
+            showToast('Produk berhasil ditambahkan! ✓');
+            closeAddProductModal();
+        }
+
+        function editProduct(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('editProductSelect').value);
+            const name = document.getElementById('editProductName').value;
+            const price = parseInt(document.getElementById('editProductPrice').value);
+            const unit = document.getElementById('editProductUnit').value;
+            const category = document.getElementById('editProductCategory').value;
+            const image = document.getElementById('editProductImage').value;
+            const desc = document.getElementById('editProductDesc').value;
+            const product = products.find(p => p.id === id);
+            if (product) {
+                product.name = name;
+                product.price = price;
+                product.unit = unit;
+                product.category = category;
+                product.image = image;
+                product.desc = desc;
+                localStorage.setItem('varshaProducts', JSON.stringify(products));
+                currentCategory = 'all';
+                renderProducts();
+                renderFeaturedProducts();
+                renderProductList();
+                showToast('Produk berhasil diedit! ✓');
+                closeEditProductModal();
+            }
         }
 
         // Toast Notification
